@@ -15,6 +15,7 @@ class WordListView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 @method_decorator(csrf_exempt, name='dispatch')
-class CreateUserView(generics.ListCreateAPIView):
-    queryset = User.objects.all()
+class CreateUserView(generics.CreateAPIView):
     serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny]
+

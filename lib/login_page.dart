@@ -188,7 +188,7 @@ class SignUp extends StatelessWidget {
 
           ElevatedButton(
             onPressed: () {
-              appState.setLoginIndex(1);
+              appState.setLoginIndex(0);
             },
             child: Text("Already have an account?")
           )
