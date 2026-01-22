@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'app_state.dart';
 import 'favorites_page.dart';
 import 'generator_page.dart';
+import 'login_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -43,7 +44,9 @@ class _MyHomePageState extends State<MyHomePage> {
       case 0:
         page = GeneratorPage();
       case 1:
-        page = FavoritesPage();
+        page = FavoritesPage(); 
+      case 2:
+        page = LoginWidget();
       default:
         throw UnimplementedError("No widget for $selectedIndex");
     }
@@ -61,6 +64,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   icon: Icon(Icons.favorite),
                   label: Text("Favorites"),
                 ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.login), 
+                  label: Text("Login")
+                )
               ],
               selectedIndex: selectedIndex,
               onDestinationSelected: (value) {

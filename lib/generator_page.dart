@@ -7,8 +7,7 @@ class GeneratorPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
-    var textPair = appState
-        .current; //only use the text pair and ignore the rest of app state
+    var textPair = appState.current; //only use the text pair and ignore the rest of app state
 
     return Center(
       child: Column(
