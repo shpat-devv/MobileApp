@@ -9,6 +9,9 @@ class MyAppState extends ChangeNotifier {
   var favorites = <WordPair>[]; //a list that can only contain word pairs
   var loginIndex = 0; //sets login or sign up
 
+  var accessToken = "";
+  var refreshToken = "";
+
   void setLoginIndex(int index) {
     loginIndex = index;
     notifyListeners();

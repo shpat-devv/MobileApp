@@ -30,16 +30,23 @@ class _LoginWidgetState extends State<LoginWidget> {
   }
 }
 
-class Login extends StatelessWidget {
+class Login extends StatefulWidget {
   Login({super.key});
 
+  @override
+  State<Login> createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
   final usernameController = TextEditingController();
+
   final passwordController = TextEditingController();
 
   @override
   void dispose() {
     usernameController.dispose();
     passwordController.dispose();
+    super.dispose();
   }
 
   Widget build(BuildContext context) {
@@ -73,14 +80,19 @@ class Login extends StatelessWidget {
           SizedBox(height: 20),
 
           ElevatedButton(
-            onPressed: () {
-              login(
+            onPressed: () async {
+              final tokens = await login(
                 "api/token/", 
                 {
                   "username": usernameController.text,
                   "password": passwordController.text,
                 }
               );
+              if (tokens != null) {
+                print("logged in successfully");
+                appState.refreshToken = tokens[0];
+                appState.accessToken = tokens[1];
+              }
             },
             child: Text("Login")
           ),
@@ -97,13 +109,22 @@ class Login extends StatelessWidget {
   }
 }
 
-class SignUp extends StatelessWidget {
+class SignUp extends StatefulWidget {
   SignUp({super.key});
 
+  @override
+  State<SignUp> createState() => _SignUpState();
+}
+
+class _SignUpState extends State<SignUp> {
   final emailController = TextEditingController();
+
   final usernameController = TextEditingController();
+
   final firstNameController = TextEditingController();
+
   final lastNameController = TextEditingController();
+
   final passwordController = TextEditingController();
 
   @override
@@ -113,6 +134,7 @@ class SignUp extends StatelessWidget {
     firstNameController.dispose();
     lastNameController.dispose();
     emailController.dispose();
+    super.dispose();
   }
 
   Widget build(BuildContext context) {
@@ -171,8 +193,8 @@ class SignUp extends StatelessWidget {
           SizedBox(height: 20),
 
           ElevatedButton(
-            onPressed: () {
-              login(
+            onPressed: () async {
+              final loginResponse = await login(
                 "api/user/register/", 
                 {
                   "username": usernameController.text,
@@ -180,8 +202,12 @@ class SignUp extends StatelessWidget {
                   "last_name": lastNameController.text,
                   "email": emailController.text,
                   "password": passwordController.text,                  
-                }
+                },
               );
+              if (loginResponse != null) {
+                print("Created account!");
+                appState.setLoginIndex(0);
+              }
             },
             child: Text("Sign up")
           ),
@@ -198,23 +224,39 @@ class SignUp extends StatelessWidget {
   }
 }
 
-Future<void> login(String inputPath, Map<String, dynamic> inputBody) async {
+Future<List<String>?> login(String inputPath, Map<String, dynamic> inputBody) async {
   var response = await ApiService.post(
     inputPath,
     body: inputBody
   );  
-  print(response.statusCode);
-  print(response.body);
-  if (response.statusCode != 200) {
-    AlertDialog(
-      content: Text("Account not found"),
-    );
-  } else {
-    AlertDialog(
-      content: Text("Logged in"),
-    );
-    final [refreshToken, accessToken] = getTokens(response.body);
 
+  if (inputPath == "api/token/") {
+    if (response.statusCode != 200) {
+      AlertDialog(
+        content: Text("Account not found"),
+      );
+      return null;
+    } else {
+      AlertDialog(
+        content: Text("Logged in"),
+      );
+      return getTokens(response.body);
+    }
+  } else if (inputPath == "api/user/register/") {
+    if (response.statusCode != 200) {
+      AlertDialog(
+        content: Text("Couldn't create account, Please try again or use different credentials"),
+      );
+      return null;
+    } else {
+      AlertDialog(
+        content: Text("Created account"),
+      );
+      return ["Success"]; //i know i should use an enum for this function but ill do that later (probably)
+    }
+  } else {
+    print("Unsupported path");
+    return null;
   }
 }
 
