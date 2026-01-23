@@ -204,7 +204,8 @@ Future<void> login(String inputPath, Map<String, dynamic> inputBody) async {
     body: inputBody
   );  
   print(response.statusCode);
-  if (response.statusCode != 400) {
+  print(response.body);
+  if (response.statusCode != 200) {
     AlertDialog(
       content: Text("Account not found"),
     );
@@ -212,5 +213,26 @@ Future<void> login(String inputPath, Map<String, dynamic> inputBody) async {
     AlertDialog(
       content: Text("Logged in"),
     );
+    final [refreshToken, accessToken] = getTokens(response.body);
+
   }
+}
+
+List<String> getTokens(String responseBody){
+  String token = "";
+  final tokens = <String>[];
+  var bodies = responseBody.split(",");
+
+  const disallowedChars = {'"', '{', '}', ':'};
+
+  for (var body in bodies) {
+    for (int i = body.indexOf(":"); i < body.length; i++) {
+      if (!disallowedChars.contains(body[i])) {
+        token += body[i];
+      }
+    }
+    tokens.add(token);
+    token = "";
+  }
+  return tokens;
 }
