@@ -1,16 +1,17 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 import 'api.dart';
+import 'dart:convert';
+
 
 class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-  var favorites = <WordPair>[]; //a list that can only contain word pairs
-  var loginIndex = 0; //sets login or sign up
+  WordPair current = WordPair.random();
+  List<WordPair> favorites = []; 
+  
+  int loginIndex = 0; //sets login or sign up
 
-  var accessToken = "";
-  var refreshToken = "";
+  String accessToken = "";
+  String refreshToken = "";
 
   void setLoginIndex(int index) {
     loginIndex = index;
@@ -32,26 +33,45 @@ class MyAppState extends ChangeNotifier {
   }
 
   Future<void> getFavorites() async {
+    if (accessToken.isEmpty) {
+      print("fuckn access token doesnt exist nigga");
+      print(accessToken);
+      return;
+    }
+    
     try {
-      final response = await ApiService.get("wordlist/");
-      print(response.statusCode);
-      print(response.body);
+      final response = await ApiService.get("wordlist/", token: accessToken);
+
+      for (var i in jsonDecode(response.body)) {
+        favorites.add(WordPair(" ", i["wordlist"]));
+      }
     } catch (e) {
       print("Error connecting to the server: $e");
       throw Exception("Couldn't read value");
     }
   }
 
-  Future<void> sentFavorites(body) async {
-    try {
-      final response = await ApiService.post(
-        "wordlist/",
-        body: body
-      );
-      print(response.statusCode);
-    } catch (e) {
-      print("Error connecting to the server: $e");
-      throw Exception("Couldn't read value");
+  Future<void> saveFavorites(List<WordPair> word_pairs) async {
+    if (accessToken.isEmpty) {
+      print("Please login first");
+
+    } else {
+      for (var word_pair in word_pairs) {
+        try {
+          final response = await ApiService.post(
+            "wordlist/",
+            body: {
+              "wordlist": word_pair.asString
+            },
+            token: accessToken
+          );
+          print(response.statusCode);
+          print(response.body);
+        } catch (e) {
+          print("Error connecting to the server: $e");
+          throw Exception("Couldn't read value");
+        }
+      }
     }
   }
 }

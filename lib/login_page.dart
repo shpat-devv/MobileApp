@@ -92,6 +92,7 @@ class _LoginState extends State<Login> {
                 print("logged in successfully");
                 appState.refreshToken = tokens[0];
                 appState.accessToken = tokens[1];
+                appState.getFavorites();
               }
             },
             child: Text("Login")
@@ -118,13 +119,9 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   final emailController = TextEditingController();
-
   final usernameController = TextEditingController();
-
   final firstNameController = TextEditingController();
-
   final lastNameController = TextEditingController();
-
   final passwordController = TextEditingController();
 
   @override

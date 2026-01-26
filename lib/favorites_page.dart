@@ -15,7 +15,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
     var favorites = appState.favorites;
-
+    
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -33,9 +33,14 @@ class _FavoritesPageState extends State<FavoritesPage> {
                   child: Text("Remove"),
                 ),
                 SizedBox(height: 20),
-
               ],
             ),
+            ElevatedButton(
+              onPressed: () {
+                appState.saveFavorites(appState.favorites);
+              },
+              child: Text("Save")
+          )
         ],
       ),
     );

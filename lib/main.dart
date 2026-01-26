@@ -33,9 +33,19 @@ class MyHomePage extends StatefulWidget {
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
-
 class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Run once when the app starts
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final appState = context.read<MyAppState>();
+        appState.getFavorites();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,19 +53,23 @@ class _MyHomePageState extends State<MyHomePage> {
     switch (selectedIndex) {
       case 0:
         page = GeneratorPage();
+        break;
       case 1:
-        page = FavoritesPage(); 
+        page = FavoritesPage();
+        break;
       case 2:
         page = LoginWidget();
+        break;
       default:
         throw UnimplementedError("No widget for $selectedIndex");
     }
+
     return Scaffold(
       body: Row(
         children: [
           SafeArea(
             child: NavigationRail(
-              destinations: [
+              destinations: const [
                 NavigationRailDestination(
                   icon: Icon(Icons.home),
                   label: Text("Home"),
@@ -65,9 +79,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   label: Text("Favorites"),
                 ),
                 NavigationRailDestination(
-                  icon: Icon(Icons.login), 
-                  label: Text("Login")
-                )
+                  icon: Icon(Icons.login),
+                  label: Text("Login"),
+                ),
               ],
               selectedIndex: selectedIndex,
               onDestinationSelected: (value) {
@@ -88,6 +102,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-
-
-

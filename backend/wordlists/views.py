@@ -10,9 +10,15 @@ from django.utils.decorators import method_decorator
 User = get_user_model()
 
 class WordListView(generics.ListCreateAPIView):
-    queryset = Wordlist.objects.all()
     serializer_class = WordListSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Wordlist.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CreateUserView(generics.CreateAPIView):

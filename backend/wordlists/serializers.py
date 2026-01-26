@@ -6,7 +6,8 @@ from django.contrib.auth.hashers import make_password
 class WordListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wordlist
-        fields = ["id", "user", "wordlist", "added_on"]
+        fields = ["id", "wordlist"]
+        read_only_fields = ["added_on"]
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
