@@ -69,6 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
         children: [
           SafeArea(
             child: NavigationRail(
+              groupAlignment: 0.0,
               destinations: const [
                 NavigationRailDestination(
                   icon: Icon(Icons.home),

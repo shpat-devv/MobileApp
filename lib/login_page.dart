@@ -1,37 +1,29 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'app_state.dart';
 import 'api.dart';
 
-class LoginWidget extends StatefulWidget {
+class LoginWidget extends StatelessWidget {
   const LoginWidget({super.key});
 
   @override
-  State<LoginWidget> createState() => _LoginWidgetState();
-}
-
-class _LoginWidgetState extends State<LoginWidget> {
-  @override
   Widget build(BuildContext context) {
-    Widget loginPage;
-
     final appState = context.watch<MyAppState>();
 
-    switch (appState.loginIndex){
+    switch (appState.loginIndex) {
       case 0:
-        loginPage = Login();
+        return const Login();
       case 1:
-        loginPage = SignUp();
+        return const SignUp();
       default:
-        throw UnimplementedError("Index not possible for login widget");
+        throw UnimplementedError("Invalid login index");
     }
-    
-    return loginPage;
   }
 }
 
 class Login extends StatefulWidget {
-  Login({super.key});
+  const Login({super.key});
 
   @override
   State<Login> createState() => _LoginState();
@@ -39,8 +31,9 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   final usernameController = TextEditingController();
-
   final passwordController = TextEditingController();
+
+  bool _loading = false;
 
   @override
   void dispose() {
@@ -49,69 +42,98 @@ class _LoginState extends State<Login> {
     super.dispose();
   }
 
+  @override
   Widget build(BuildContext context) {
     final appState = context.read<MyAppState>();
 
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text("Login"),
-          SizedBox(height: 20),
-          
-          TextField(
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: "Username"
+      child: Card(
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: SizedBox(
+            width: 320,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  "Login",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 20),
+
+                TextField(
+                  controller: usernameController,
+                  decoration: const InputDecoration(
+                    labelText: "Username",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                TextField(
+                  controller: passwordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: "Password",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _loading
+                        ? null
+                        : () async {
+                            setState(() => _loading = true);
+
+                            final tokens = await login(
+                              "api/token/",
+                              {
+                                "username": usernameController.text.trim(),
+                                "password": passwordController.text,
+                              },
+                            );
+
+                            setState(() => _loading = false);
+
+                            if (tokens != null) {
+                              appState.refreshToken = tokens[0];
+                              appState.accessToken = tokens[1];
+                              await appState.getFavorites();
+
+                              _showDialog(context, "Login Successful");
+                            } else {
+                              _showDialog(context, "Invalid credentials");
+                            }
+                          },
+                    child: _loading
+                        ? const SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text("Login"),
+                  ),
+                ),
+
+                TextButton(
+                  onPressed: () => appState.setLoginIndex(1),
+                  child: const Text("Don't have an account? Sign up"),
+                ),
+              ],
             ),
-            controller: usernameController,
           ),
-
-          SizedBox(height: 10),
-
-          TextField(
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: "Password",
-            ),
-            controller: passwordController,
-          ),
-
-          SizedBox(height: 20),
-
-          ElevatedButton(
-            onPressed: () async {
-              final tokens = await login(
-                "api/token/", 
-                {
-                  "username": usernameController.text,
-                  "password": passwordController.text,
-                }
-              );
-              if (tokens != null) {
-                print("logged in successfully");
-                appState.refreshToken = tokens[0];
-                appState.accessToken = tokens[1];
-                appState.getFavorites();
-              }
-            },
-            child: Text("Login")
-          ),
-
-          ElevatedButton(
-            onPressed: () {
-              appState.setLoginIndex(1);
-            },
-            child: Text("Don't ave an account?")
-          )
-        ],
-      )
+        ),
+      ),
     );
   }
 }
 
 class SignUp extends StatefulWidget {
-  SignUp({super.key});
+  const SignUp({super.key});
 
   @override
   State<SignUp> createState() => _SignUpState();
@@ -124,154 +146,152 @@ class _SignUpState extends State<SignUp> {
   final lastNameController = TextEditingController();
   final passwordController = TextEditingController();
 
+  bool _loading = false;
+
   @override
   void dispose() {
+    emailController.dispose();
     usernameController.dispose();
-    passwordController.dispose();
     firstNameController.dispose();
     lastNameController.dispose();
-    emailController.dispose();
+    passwordController.dispose();
     super.dispose();
   }
 
+  @override
   Widget build(BuildContext context) {
     final appState = context.read<MyAppState>();
 
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text("Sign Up"),
-          SizedBox(height: 20),
-          
-          TextField(
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: "First Name"
+      child: Card(
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: SizedBox(
+            width: 340,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  "Sign Up",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 20),
+
+                _field(firstNameController, "First name"),
+                _field(lastNameController, "Last name"),
+                _field(usernameController, "Username"),
+                _field(emailController, "Email"),
+                _field(passwordController, "Password", obscure: true),
+
+                const SizedBox(height: 20),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _loading
+                        ? null
+                        : () async {
+                            setState(() => _loading = true);
+
+                            final success = await register(
+                              {
+                                "username": usernameController.text.trim(),
+                                "first_name": firstNameController.text.trim(),
+                                "last_name": lastNameController.text.trim(),
+                                "email": emailController.text.trim(),
+                                "password": passwordController.text,
+                              },
+                            );
+
+                            setState(() => _loading = false);
+
+                            if (success) {
+                              _showDialog(context, "Account created");
+                              appState.setLoginIndex(0);
+                            } else {
+                              _showDialog(context, "Sign up failed");
+                            }
+                          },
+                    child: _loading
+                        ? const SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text("Create account"),
+                  ),
+                ),
+
+                TextButton(
+                  onPressed: () => appState.setLoginIndex(0),
+                  child: const Text("Already have an account? Login"),
+                ),
+              ],
             ),
-            controller: firstNameController,
           ),
+        ),
+      ),
+    );
+  }
 
-
-          TextField(
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: "Last Name"
-            ),
-            controller: lastNameController,
-          ),
-
-          TextField(
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: "Username"
-            ),
-            controller: usernameController,
-          ),
-
-          TextField(
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: "Email"
-            ),
-            controller: emailController,
-          ),
-
-          SizedBox(height: 10),
-
-          TextField(
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: "Password",
-            ),
-            controller: passwordController,
-          ),
-
-          SizedBox(height: 20),
-
-          ElevatedButton(
-            onPressed: () async {
-              final loginResponse = await login(
-                "api/user/register/", 
-                {
-                  "username": usernameController.text,
-                  "first_name": firstNameController.text,
-                  "last_name": lastNameController.text,
-                  "email": emailController.text,
-                  "password": passwordController.text,                  
-                },
-              );
-              if (loginResponse != null) {
-                print("Created account!");
-                appState.setLoginIndex(0);
-              }
-            },
-            child: Text("Sign up")
-          ),
-
-          ElevatedButton(
-            onPressed: () {
-              appState.setLoginIndex(0);
-            },
-            child: Text("Already have an account?")
-          )
-        ],
-      )
+  Widget _field(
+    TextEditingController controller,
+    String label, {
+    bool obscure = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: TextField(
+        controller: controller,
+        obscureText: obscure,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+        ),
+      ),
     );
   }
 }
 
-Future<List<String>?> login(String inputPath, Map<String, dynamic> inputBody) async {
-  var response = await ApiService.post(
-    inputPath,
-    body: inputBody
-  );  
+Future<List<String>?> login(
+  String path,
+  Map<String, dynamic> body,
+) async {
+  final response = await ApiService.post(path, body: body);
 
-  if (inputPath == "api/token/") {
-    if (response.statusCode != 200) {
-      AlertDialog(
-        content: Text("Account not found"),
-      );
-      return null;
-    } else {
-      AlertDialog(
-        content: Text("Logged in"),
-      );
-      return getTokens(response.body);
-    }
-  } else if (inputPath == "api/user/register/") {
-    if (response.statusCode != 200) {
-      AlertDialog(
-        content: Text("Couldn't create account, Please try again or use different credentials"),
-      );
-      return null;
-    } else {
-      AlertDialog(
-        content: Text("Created account"),
-      );
-      return ["Success"]; //i know i should use an enum for this function but ill do that later (probably)
-    }
-  } else {
-    print("Unsupported path");
-    return null;
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    return [
+      data["refresh"],
+      data["access"],
+    ];
   }
+
+  return null;
 }
 
-List<String> getTokens(String responseBody){
-  String token = "";
-  final tokens = <String>[];
-  var bodies = responseBody.split(",");
+Future<bool> register(Map<String, dynamic> body) async {
+  final response = await ApiService.post(
+    "api/user/register/",
+    body: body,
+  );
 
-  const disallowedChars = {'"', '{', '}', ':'};
+  return response.statusCode == 201 || response.statusCode == 200;
+}
 
-  for (var body in bodies) {
-    for (int i = body.indexOf(":"); i < body.length; i++) {
-      if (!disallowedChars.contains(body[i])) {
-        token += body[i];
-      }
-    }
-    tokens.add(token);
-    token = "";
-  }
-  return tokens;
+void _showDialog(BuildContext context, String message) {
+  showDialog(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: const Text("Info"),
+      content: Text(message),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("OK"),
+        )
+      ],
+    ),
+  );
 }

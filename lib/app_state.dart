@@ -34,7 +34,7 @@ class MyAppState extends ChangeNotifier {
 
   Future<void> getFavorites() async {
     if (accessToken.isEmpty) {
-      print("fuckn access token doesnt exist nigga");
+      print("token isn't set");
       print(accessToken);
       return;
     }
