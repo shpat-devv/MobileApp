@@ -19,6 +19,10 @@ class WordListView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+class WordListDeleteView(generics.DestroyAPIView):
+    queryset = Wordlist.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = "id"
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CreateUserView(generics.CreateAPIView):

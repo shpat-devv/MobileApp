@@ -2,8 +2,12 @@
 
 Reroute user after login
 
-Get wordlists from backend automatically
+clear login page
 
-show those Alert dialogs 
+make sure only the new ones get sent
+
+make sure remove also removes from the server DB
 
 Center side pair vertically 
+
+make sure app doesnt crash when wordlists overflows

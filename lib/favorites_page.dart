@@ -1,3 +1,4 @@
+import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'app_state.dart';
@@ -20,14 +21,14 @@ class _FavoritesPageState extends State<FavoritesPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          for (var favorite in favorites)
+          for (var favorite in favorites) //todo: only change word pair if first word is the id
             Column(
               children: [
-                TextPair(textPair: favorite),
+                TextPair(textPair: WordPair(" ", favorite.second)),
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      favorites.remove(favorite);
+                      appState.removeFavorite(favorite);
                     });
                   },
                   child: Text("Remove"),
