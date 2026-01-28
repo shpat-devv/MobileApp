@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static final String? _baseUrl = "http://127.0.0.1:8000/";
+  static final String _baseUrl = "http://127.0.0.1:8000/";
   static Uri _uri(String path) {
     return Uri.parse("$_baseUrl$path");
   }
@@ -10,7 +10,7 @@ class ApiService {
   static Map<String, String> _headers({String? token}) {
     return {
       "Content-Type": "application/json",
-      "Referer": "$_baseUrl",
+      "Referer": _baseUrl,
       if (token != null) "Authorization": "Bearer $token",
     };
   }

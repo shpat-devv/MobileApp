@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'app_state.dart';
 import 'favorites_page.dart';
 import 'generator_page.dart';
 import 'login_page.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
+      create: (_) => MyAppState(),
       child: MaterialApp(
         title: 'Namer App',
         theme: ThemeData(
@@ -23,32 +24,35 @@ class MyApp extends StatelessWidget {
             seedColor: const Color.fromARGB(255, 72, 115, 255),
           ),
         ),
-        home: MyHomePage(),
+        home: const MyHomePage(),
       ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
-class _MyHomePageState extends State<MyHomePage> {
-  var selectedIndex = 0;
 
+class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
 
     // Run once when the app starts
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final appState = context.read<MyAppState>();
-        appState.getFavorites();
+      context.read<MyAppState>().getFavorites();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final appState = context.watch<MyAppState>();
+    final selectedIndex = appState.selectedIndex;
+
     Widget page;
     switch (selectedIndex) {
       case 0:
@@ -58,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
         page = FavoritesPage();
         break;
       case 2:
-        page = LoginWidget();
+        page = const LoginWidget();
         break;
       default:
         throw UnimplementedError("No widget for $selectedIndex");
@@ -69,6 +73,8 @@ class _MyHomePageState extends State<MyHomePage> {
         children: [
           SafeArea(
             child: NavigationRail(
+              selectedIndex: selectedIndex,
+              onDestinationSelected: appState.setSelectedIndex,
               groupAlignment: 0.0,
               destinations: const [
                 NavigationRailDestination(
@@ -84,12 +90,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   label: Text("Login"),
                 ),
               ],
-              selectedIndex: selectedIndex,
-              onDestinationSelected: (value) {
-                setState(() {
-                  selectedIndex = value;
-                });
-              },
             ),
           ),
           Expanded(

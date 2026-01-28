@@ -13,6 +13,7 @@ class MyAppState extends ChangeNotifier {
   int oldEndIndex = 0;
 
   int loginIndex = 0; //sets login or sign up
+  int selectedIndex = 0; //current page
 
   String accessToken = "";
   String refreshToken = "";
@@ -21,6 +22,11 @@ class MyAppState extends ChangeNotifier {
     loginIndex = index;
     notifyListeners();
   } 
+
+  void setSelectedIndex(int index) {
+    selectedIndex = index;
+    notifyListeners();
+  }
 
   void getNext() {
     current = WordPair.random();
