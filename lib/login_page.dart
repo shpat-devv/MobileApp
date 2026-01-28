@@ -103,10 +103,15 @@ class _LoginState extends State<Login> {
                               appState.refreshToken = tokens[0];
                               appState.accessToken = tokens[1];
                               await appState.getFavorites();
+                              if (context.mounted) {
+                                _showDialog(context, "Login Successful");
+                              }
+                              dispose();
 
-                              _showDialog(context, "Login Successful");
                             } else {
-                              _showDialog(context, "Invalid credentials");
+                              if (context.mounted) {
+                                _showDialog(context, "Invalid credentials");
+                              }
                             }
                           },
                     child: _loading
@@ -207,10 +212,16 @@ class _SignUpState extends State<SignUp> {
                             setState(() => _loading = false);
 
                             if (success) {
-                              _showDialog(context, "Account created");
+                              if (context.mounted) {
+                                _showDialog(context, "Account created");
+                              }
                               appState.setLoginIndex(0);
+                              dispose();
+
                             } else {
-                              _showDialog(context, "Sign up failed");
+                              if (context.mounted) {
+                                _showDialog(context, "Sign up failed");
+                              }
                             }
                           },
                     child: _loading

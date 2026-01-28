@@ -39,7 +39,6 @@ class MyAppState extends ChangeNotifier {
   Future<void> getFavorites() async {
     if (accessToken.isEmpty) {
       print("token isn't set");
-      print(accessToken);
       return;
     }
     
@@ -50,7 +49,7 @@ class MyAppState extends ChangeNotifier {
       for (var i in jsonDecode(response.body)) {
         favorites.add(WordPair("${i["id"]}", i["wordlist"]));
       }
-      oldEndIndex = favorites.length - 1; 
+      oldEndIndex = favorites.length; 
       print("start index of old fav: $oldStartIndex, end index: $oldEndIndex");
     } catch (e) {
       print("Error connecting to the server: $e");
@@ -71,7 +70,7 @@ class MyAppState extends ChangeNotifier {
             print("Error connecting to the server: $e");
             throw Exception("Couldn't read value");
           }
-    }
+   }
     favorites.remove(favorite);
   }
 

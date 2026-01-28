@@ -18,31 +18,33 @@ class _FavoritesPageState extends State<FavoritesPage> {
     var favorites = appState.favorites;
     
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          for (var favorite in favorites) //todo: only change word pair if first word is the id
-            Column(
-              children: [
-                TextPair(textPair: WordPair(" ", favorite.second)),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      appState.removeFavorite(favorite);
-                    });
-                  },
-                  child: Text("Remove"),
-                ),
-                SizedBox(height: 20),
-              ],
-            ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for (var favorite in favorites) // todo: only change word pair if first word is the id
+              Column(
+                children: [
+                  TextPair(textPair: WordPair(" ", favorite.second)),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        appState.removeFavorite(favorite);
+                      });
+                    },
+                    child: Text("Remove"),
+                  ),
+                  SizedBox(height: 20),
+                ],
+              ),
             ElevatedButton(
               onPressed: () {
                 appState.saveFavorites(appState.favorites);
               },
-              child: Text("Save")
-          )
-        ],
+              child: Text("Save"),
+            ),
+          ],
+        ),
       ),
     );
   }
